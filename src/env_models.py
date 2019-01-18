@@ -216,8 +216,8 @@ class Model_StaticFire(Model_Base):
         Initialize the path from a csv located in directory
         """
         temp = []
-        # with open('fire_data_120_121.csv') as fid:
-        with open('fire_data_240_241.csv') as fid:
+        # with open('../resources/fire_data_120_121.csv') as fid:
+        with open('../resources/fire_data_240_241.csv') as fid:
             csvreader = csv.reader(fid, delimiter=',')
             for ind,row in enumerate(csvreader):
                 temp.append(row)

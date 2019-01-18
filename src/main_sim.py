@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 main_sim.py
 Michael Ostertag
@@ -12,14 +12,15 @@ drones.
 import time
 import argparse
 
+import os
 import math
 import logging
 import numpy as np
 import csv
 from env_models import Model_StaticFire, Model_StaticCircle_Random, Model_StaticCircle_set
 from drones import Drone_Constant, Drone_Smith, Drone_Ostertag
-from shapely.geometry import Point, Polygon, LineString
-from shapely.geometry.polygon import orient
+from shapely.geometry import Polygon #, LineString,  Point
+#from shapely.geometry.polygon import orient
 
 import matplotlib.cm as colors
 import matplotlib.pyplot as plt
@@ -163,11 +164,14 @@ class Sim_Environment():
         
         np.set_printoptions(linewidth=1024, suppress=True)
         
-        filename_temp = '{0}_vmax{2:d}_nobs{3:d}_Nq{4:d}_ros{1:d}.csv'.format(
+        filename_temp = '{0}_vmax{2:d}_V{3:d}_N{4:d}_ros{1:d}.csv'.format(
                 self.filename_results, math.trunc(param_ros), 
                 math.trunc(param_v_max),math.trunc(param_n_obs), 
                 math.trunc(param_N_q))
-        with open('Results/' + filename_temp, 'a', newline='') as fid:
+        directory_save = '../results/'
+        if not os.path.exists(directory_save):
+            os.makedirs(directory_save)
+        with open(directory_save + filename_temp, 'a', newline='') as fid:
             writer = csv.writer(fid)            
             for result in list_results:
                 temp_row = list_config + [theta0] + list(result.flatten())
@@ -236,6 +240,8 @@ class SwarmController():
             dx, dy = np.tan(ang_fov)*z
             obs_window = Polygon([[-dx, -dy], [dx, -dy], [dx, dy], [-dx, dy]])
             
+            # Create a list of 3 drones, one for each algorithm
+            # TODO Change from hardcoded list.
             self.list_drones.append(Drone_Constant(loop_path=gamma, poi=poi, 
                                         covar_e=covar_e, obs_window=obs_window,
                                         covar_obs=param_n_obs, drone_id=(100+drone_id), 
@@ -367,9 +373,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--vmax', type=float, default=30.0, 
                         help='maximum velocity of drone')
-    parser.add_argument('--nobs', type=float, default=20.0,
+    parser.add_argument('--v', type=float, default=20.0,
                         help='noise in observation model')
-    parser.add_argument('--Nq', type=int, default=6,
+    parser.add_argument('--n', type=int, default=6,
                         help='number of points of interest (q)')
     parser.add_argument('--Nsteps', type=int, default=600,
                         help='number of simulation steps')
@@ -382,7 +388,7 @@ if __name__ == '__main__':
     parser.add_argument('--logging', action='store_true',
                         help='enables debug logging')
     parser.add_argument('--overlap', action='store_true',
-                        help='forces two points of interest to have overlapping sensing region')
+                        help='forces at least two points of interest to have overlapping sensing region')
     args = parser.parse_args()
     
     N_steps = args.Nsteps

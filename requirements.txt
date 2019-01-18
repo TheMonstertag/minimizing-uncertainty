@@ -1,0 +1,6 @@
+matplotlib>=3.0.2
+noise>=1.2.2
+numpy>=1.16.0
+PuLP>=1.6.9
+Shapely>=1.6.4.post2
+sympy>=1.3
